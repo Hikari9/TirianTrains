@@ -30,6 +30,14 @@ public class TirianTrains {
         return new String[] {"Katipunan", "Araneta Center-Cubao", "Anonas"};
     }
     
+    public static String[] getTrainTableHeaders() {
+        return new String[] {};
+    }
+    public static Object[][] getFilteredTrainTable() {
+        return new Object[][] {};
+    }
+    
+    
     static JLabel originStation = new JLabel();
     public static JLabel getOriginStation() {
         return originStation;

@@ -39,7 +39,6 @@ public class BuyTicket extends DefaultFrame {
         super("Buy Tickets", "PICK TRAINS -->", 30);
     }
 
-    
     // static method to ensure one instance
     private static BuyTicket instance = null;
     public static BuyTicket getInstance() {
