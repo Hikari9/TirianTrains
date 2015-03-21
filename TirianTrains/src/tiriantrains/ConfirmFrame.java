@@ -45,8 +45,8 @@ public class ConfirmFrame extends JFrame {
         // EDIT THIS
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
-                JFrame nextFrame = TicketFrame.getInstance();
-                addActionListener(new TirianTrains.FrameOpener(getInstance(), nextFrame));
+                // JFrame nextFrame = TicketFrame.getInstance();
+                // addActionListener(new TirianTrains.FrameOpener(getInstance(), nextFrame));
             }
         });
     }};

@@ -15,6 +15,11 @@ public class TirianTrains {
         return new String[] {"Quezon City"};
     }
     
+    public static String getTown(String station) {
+        // receive station info from database with particular station
+        return "";
+    }
+    
     public static String[] getStations() {
         // receive all station info from database here
         return new String[] {""};
