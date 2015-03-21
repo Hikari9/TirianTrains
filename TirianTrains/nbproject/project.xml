@@ -5,6 +5,8 @@
         <data xmlns="http://www.netbeans.org/ns/j2se-project/3">
             <name>TirianTrains</name>
             <source-roots>
+                <root id="src.sql.dir"/>
+                <root id="src.libraries.dir"/>
                 <root id="src.dir"/>
             </source-roots>
             <test-roots>

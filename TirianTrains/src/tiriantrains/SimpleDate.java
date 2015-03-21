@@ -1,6 +1,6 @@
 package tiriantrains;
 
-import java.util.Date;
+import java.sql.Date;
 
 public class SimpleDate extends Date {
     public SimpleDate(int year, int month, int day) {

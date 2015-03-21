@@ -3,7 +3,7 @@ package tiriantrains;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.text.ParseException;
-import java.util.Date;
+import java.sql.Date;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -42,11 +42,13 @@ public class BuyTicket extends DefaultFrame {
         return new SimpleDate(year, month, day);
     }
     
+    // military time
     public static int getDepartureTime() {
         String depTime = getInstance().departureTime.getText();
-        int minutes = Integer.parseInt(depTime.substring(0, 2));
-        int seconds = Integer.parseInt(depTime.substring(3));
-        return minutes * 60 + seconds;
+        int hours = Integer.parseInt(depTime.substring(0, 2));
+        int minutes = Integer.parseInt(depTime.substring(3));
+        // * 100 for viewing purposes
+        return hours * 100 + minutes;
     }
     
     // Constructor

@@ -22,7 +22,6 @@ public class StationFilter implements ItemListener {
         // filter station combobox based from town
         String theTown = (String) town.getSelectedItem();
         String[] stations = TirianTrains.getStations(theTown);
-        
         if (stations == null)
             station.setModel(new DefaultComboBoxModel());
         else
@@ -31,10 +30,7 @@ public class StationFilter implements ItemListener {
 
     @Override
     public void itemStateChanged(ItemEvent ie) {
-        if (ie.getStateChange() == ItemEvent.SELECTED) {
+        if (ie.getStateChange() == ItemEvent.SELECTED)
             filter();
-        }
-        // disable if "Select town..." is displayed
-        station.setEnabled(town.getSelectedIndex() == 0);
     }
 }
