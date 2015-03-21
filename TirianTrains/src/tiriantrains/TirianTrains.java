@@ -2,6 +2,9 @@ package tiriantrains;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import javax.swing.*;
 import org.jdatepicker.*;
 
@@ -30,11 +33,17 @@ public class TirianTrains {
         return new String[] {"Katipunan", "Araneta Center-Cubao", "Anonas"};
     }
     
-    public static String[] getTrainTableHeaders() {
-        return new String[] {};
+    public static Object[] getTrainTableHeaders() {
+        // column headers of train list
+        return new Object[] {"Date", "Departure Time", "Arrival Time", "Duration", "Train ID", "Train Model", "Train Features", "Cost"};
     }
-    public static Object[][] getFilteredTrainTable() {
-        return new Object[][] {};
+    
+    public static Object[][] getTrainTable() {
+        // column info (unfiltered) of train list
+        return new Object[][] {
+            { new SimpleDate(2015, 3, 29), "", "", "", "", "", "", "" }
+            // { new SimpleDate(2015, 1, 1), "", "", "", "", "", "", "" }
+        };
     }
     
     

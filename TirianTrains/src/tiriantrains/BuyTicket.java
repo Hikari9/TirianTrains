@@ -3,6 +3,7 @@ package tiriantrains;
 import java.awt.Component;
 import java.awt.GridLayout;
 import java.text.ParseException;
+import java.util.Date;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
@@ -34,6 +35,20 @@ public class BuyTicket extends DefaultFrame {
         return new Station(getInstance().toStation.getSelectedItem().toString());
     }
     
+    public static Date getDepartureDate() {
+        int day = getInstance().departureDate.getModel().getDay();
+        int month = getInstance().departureDate.getModel().getMonth();
+        int year = getInstance().departureDate.getModel().getYear();
+        return new SimpleDate(year, month, day);
+    }
+    
+    public static int getDepartureTime() {
+        String depTime = getInstance().departureTime.getText();
+        int minutes = Integer.parseInt(depTime.substring(0, 2));
+        int seconds = Integer.parseInt(depTime.substring(3));
+        return minutes * 60 + seconds;
+    }
+    
     // Constructor
     private BuyTicket() {
         super("Buy Tickets", "PICK TRAINS -->", 30);
@@ -47,7 +62,7 @@ public class BuyTicket extends DefaultFrame {
         return instance;
     }
     
-    // Initialize components
+    // initialize components
     @Override
     protected void start() {
         createComboBoxes(); // setup from-to stations and towns
@@ -64,7 +79,8 @@ public class BuyTicket extends DefaultFrame {
     // run when submit button is clicked
     @Override
     public void onSubmit() {
-        
+        setVisible(false);
+        TrainFrame.getInstance().setVisible(true);
     }
     
     private void createComboBoxes() {
@@ -98,6 +114,7 @@ public class BuyTicket extends DefaultFrame {
         catch (ParseException e) {}
         
         departureTime = temp;
+        departureTime.setText("08:00");
     }
     
     // creates a panel holding a row of components
