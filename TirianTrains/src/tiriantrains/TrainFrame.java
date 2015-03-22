@@ -3,18 +3,10 @@ package tiriantrains;
 // Note: this class is a Singleton
 
 import java.awt.Dimension;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.regex.PatternSyntaxException;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.RowFilter;
-import javax.swing.RowSorter.SortKey;
-import javax.swing.SortOrder;
-import javax.swing.SwingUtilities;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
 
 public class TrainFrame extends DefaultFrame {
@@ -29,16 +21,19 @@ public class TrainFrame extends DefaultFrame {
     protected TableRowSorter<GenericTableModel> sorter;
     
     // Constructor
-    private TrainFrame() { super("Available Trains", "NEXT -->", 30); }
+    private TrainFrame() {
+        super("Available Trains", "NEXT -->", 30);
+        setDefaultCloseOperation(HIDE_ON_CLOSE);
+    }
     
     // static method to ensure one instance
     private static TrainFrame instance = null;
     public static TrainFrame getInstance() {
         if (instance == null)
             instance = new TrainFrame();
-        instance.filter();
         return instance;
     }
+    
     
     // initialization components
     @Override
@@ -46,6 +41,7 @@ public class TrainFrame extends DefaultFrame {
         add(createTable()); // setup scrollable table
         table.setPreferredScrollableViewportSize(new Dimension(800, 300));
     }
+    
     
     // run when submit button is clicked
     @Override
@@ -56,6 +52,7 @@ public class TrainFrame extends DefaultFrame {
     public void filter() {
         Object[][] data = TirianTrains.getTrainTable();
         ((GenericTableModel) table.getModel()).setData(TirianTrains.getTrainTable());
+        repaint();
     }
     
     private JComponent createTable() {

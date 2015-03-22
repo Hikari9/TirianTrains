@@ -4,6 +4,12 @@ import java.awt.Component;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.ComponentEvent;
+import java.awt.event.ComponentListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.text.ParseException;
 import java.sql.Date;
 import javax.swing.JComboBox;
@@ -11,11 +17,10 @@ import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.text.MaskFormatter;
-import net.sourceforge.jdatepicker.JDatePanel;
 import net.sourceforge.jdatepicker.JDatePicker;
-import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
-import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
 
 // Note: this class is a Singleton
 public class BuyTicket extends DefaultFrame {
@@ -60,9 +65,7 @@ public class BuyTicket extends DefaultFrame {
         return instance;
     }
     
-    static {
-        new BuyTicket();
-    }
+    static { new BuyTicket(); }
     
     // Constructor
     private BuyTicket() {
@@ -76,33 +79,30 @@ public class BuyTicket extends DefaultFrame {
         createComboBoxes(); // setup from-to stations and towns
         createStationFilters(); // setup station filter based on town
         createDepartureInfo(); // setup departure date and time
+        createFilterer();
         
         // add components to panels
         add(createRow("From:", fromTown, fromStation));
         add(createRow("To:", toTown, toStation));
         add(createRow("Date of Departure:", departureDate));
         add(createRow("Time of Departure", departureTime));
+        
     }
     
     // run when submit button is clicked
     @Override
     public void onSubmit() {
-        setVisible(false);
+        // setVisible(false);
+        TrainFrame.getInstance().filter();
         TrainFrame.getInstance().setVisible(true);
     }
     
     private void createComboBoxes() {
         // setup from-to stations and towns
         String[] towns = TirianTrains.getTowns();
-        String[] full = new String[towns.length + 1];
         
-        // enable full to have a select town at the start
-        full[0] = "Select town...";
-        for (int i = 1; i < full.length; ++i)
-            full[i] = towns[i - 1];
-        
-        fromTown = new JComboBox(full);
-        toTown = new JComboBox(full);
+        fromTown = new JComboBox(towns);
+        toTown = new JComboBox(towns);
         fromStation = new JComboBox();
         toStation = new JComboBox();
     }
@@ -123,6 +123,45 @@ public class BuyTicket extends DefaultFrame {
         
         departureTime = temp;
         departureTime.setText("08:00");
+    }
+    
+    private void createFilterer() {
+        
+        class Filterer implements ItemListener, PropertyChangeListener, ChangeListener, Runnable {
+            
+            @Override
+            public void run() {
+                if (TrainFrame.getInstance().isVisible()) {
+                    TrainFrame.getInstance().filter();
+                }
+            }
+
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                run();
+            }
+
+            @Override
+            public void propertyChange(PropertyChangeEvent evt) {
+                run();
+            }            
+
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                run();
+            }
+            
+        }
+        
+        Filterer filterer = new Filterer();
+        
+        fromTown.addItemListener(filterer);
+        toTown.addItemListener(filterer);
+        fromStation.addItemListener(filterer);
+        toStation.addItemListener(filterer);
+        departureDate.getModel().addChangeListener(filterer);
+        departureTime.addPropertyChangeListener("value", filterer);
+
     }
     
     // creates a panel holding a row of components

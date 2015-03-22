@@ -17,7 +17,7 @@ public class StationFilter implements ItemListener {
         this.station = station;
         filter();
     }
-
+    
     public void filter() {
         // filter station combobox based from town
         String theTown = (String) town.getSelectedItem();
@@ -30,7 +30,8 @@ public class StationFilter implements ItemListener {
 
     @Override
     public void itemStateChanged(ItemEvent ie) {
-        if (ie.getStateChange() == ItemEvent.SELECTED)
+        if (ie.getStateChange() == ItemEvent.SELECTED) {
             filter();
+        }
     }
 }
