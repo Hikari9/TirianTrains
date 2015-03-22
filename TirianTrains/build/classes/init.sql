@@ -36,10 +36,10 @@ CREATE TABLE MAINTENANCE_HISTORY(
 	maintenance_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0, 
 	train_id INT NOT NULL,
 	crew_id INT NOT NULL,
-	month VARCHAR(255) NOT NULL,
+	month INT NOT NULL,
 	day INT NOT NULL,
 	year INT NOT NULL,
-	curr_condition VARCHAR(255) NOT NULL, -- changed condition to curr_condition due to syntax errors in naming "condition"
+	curr_condition VARCHAR(255), -- changed condition to curr_condition due to syntax errors in naming "condition"
 	FOREIGN KEY(train_id) REFERENCES TRAIN(train_id) ON DELETE RESTRICT,
 	FOREIGN KEY(crew_id) REFERENCES CREW(crew_id) ON DELETE RESTRICT
 );
@@ -48,11 +48,25 @@ CREATE TABLE CUSTOMER(
 	given_name VARCHAR(255) NOT NULL,
 	middle_initial CHAR(5) NOT NULL,
 	last_name VARCHAR(255) NOT NULL,
-	birth_month VARCHAR(255) NOT NULL,
+	birth_month INT NOT NULL,
 	day_of_birth INT NOT NULL,
 	birth_year INT NOT NULL,
 	gender ENUM('Male', 'Female')
 );
+
+CREATE TABLE TOWN(
+	town_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
+	name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE STATION(
+	station_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
+	name VARCHAR(255) NOT NULL,
+	town_id INT NOT NULL,
+	FOREIGN KEY(town_id)
+	REFERENCES TOWN(town_id)
+);
+
 CREATE TABLE ROUTE(
 	route_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
 	travel_duration INT UNSIGNED NOT NULL,
@@ -68,7 +82,7 @@ CREATE TABLE ROUTE(
 );
 CREATE TABLE TRIP_SCHEDULE(
 	schedule_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0, 
-	month VARCHAR(255) NOT NULL,
+	month INT NOT NULL,
 	day INT NOT NULL,
 	year INT NOT NULL,
 	departure_hour INT NOT NULL,
@@ -96,43 +110,19 @@ CREATE TABLE TICKET(
 	ON DELETE RESTRICT
 );
 
-CREATE TABLE TOWN(
-	town_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
-	name VARCHAR(255) NOT NULL
-);
-
-CREATE TABLE STATION(
-	station_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
-	name VARCHAR(255) NOT NULL,
-	town_id INT NOT NULL,
-	FOREIGN KEY(town_id)
-	REFERENCES TOWN(town_id)
-);
 CREATE TABLE TASK(
 	task_code INT NOT NULL UNIQUE PRIMARY KEY,
 	description VARCHAR(255)
 );
 
 CREATE TABLE TRIP_ASSIGNMENT(
-	ticket_number INT NOT NULL,
-	schedule_id INT NOT NULL,
-	PRIMARY KEY(ticket_number,schedule_id),
-    FOREIGN KEY(ticket_number)
-    REFERENCES TICKET(ticket_number)
-    ON DELETE RESTRICT,
-    FOREIGN KEY(schedule_id)
-    REFERENCES TRIP_SCHEDULE(schedule_id)
-    ON DELETE RESTRICT
+	ticket_number INT NOT NULL REFERENCES TICKET(ticket_number),
+	schedule_id INT NOT NULL REFERENCES TRIP_SCHEDULE(schedule_id),
+	PRIMARY KEY(ticket_number, schedule_id)
 );
 
 CREATE TABLE TASK_DOING(
-	maintenance_id INT NOT NULL,
-	task_code INT NOT NULL,
-	PRIMARY KEY(maintenance_id,task_code),
-    FOREIGN KEY(maintenance_id)
-    REFERENCES MAINTENANCE_HISTORY(maintenance_id)
-    ON DELETE RESTRICT,
-    FOREIGN KEY(task_code)
-    REFERENCES task(task_code)
-    ON DELETE RESTRICT
+	maintenance_id INT NOT NULL REFERENCES MAINTENANCE_HISTORY(maintenance_id),
+	task_code INT NOT NULL REFERENCES task(task_code),
+	PRIMARY KEY(maintenance_id,task_code)
 );

@@ -3,6 +3,7 @@ package tiriantrains;
 // Note: this class is a Singleton
 
 import java.awt.Dimension;
+import java.util.Arrays;
 import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -52,7 +53,7 @@ public class TrainFrame extends DefaultFrame {
     public void filter() {
         Object[][] data = TirianTrains.getTrainTable();
         ((GenericTableModel) table.getModel()).setData(TirianTrains.getTrainTable());
-        repaint();
+        ((AbstractTableModel) table.getModel()).fireTableDataChanged();
     }
     
     private JComponent createTable() {
