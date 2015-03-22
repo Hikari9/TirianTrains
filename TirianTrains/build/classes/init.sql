@@ -4,7 +4,8 @@ USE tirian_trains;
 
 -- all deletion of foreign keys is assumed to be restricted
 -- Some tables are created in a certain order in order to avoid 
-	-- having some foreign keys point to uninitialized primary keys
+-- having some foreign keys point to uninitialized primary keys
+
 CREATE TABLE TRAIN_MODEL(
 	train_model_code INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
 	name VARCHAR(255) NOT NULL,
@@ -56,7 +57,14 @@ CREATE TABLE ROUTE(
 	route_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
 	travel_duration INT UNSIGNED NOT NULL,
 	travel_cost INT UNSIGNED DEFAULT 2,
-	route_type ENUM('Inter-town', 'Local')
+    origin_station_id INT NOT NULL,
+	destination_station_id INT NOT NULL,
+	FOREIGN KEY(origin_station_id)
+	REFERENCES STATION(station_id)
+    ON DELETE RESTRICT,
+	FOREIGN KEY(destination_station_id)
+	REFERENCES STATION(station_id)
+    ON DELETE RESTRICT
 );
 CREATE TABLE TRIP_SCHEDULE(
 	schedule_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0, 
@@ -69,27 +77,24 @@ CREATE TABLE TRIP_SCHEDULE(
 	arrival_minute INT NOT NULL,
 	route_id INT NOT NULL,
     train_id INT NOT NULL,
-	FOREIGN KEY(route_id) REFERENCES ROUTE(route_id) ON DELETE RESTRICT,
-    FOREIGN KEY(train_id) REFERENCES TRAIN(train_id) ON DELETE RESTRICT
+	FOREIGN KEY(route_id)
+    REFERENCES ROUTE(route_id)
+    ON DELETE RESTRICT,
+    FOREIGN KEY(train_id)
+    REFERENCES TRAIN(train_id)
+    ON DELETE RESTRICT
 );
 
 CREATE TABLE TICKET(
 	ticket_number INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
-	-- schedule_id INT NOT NULL,
 	customer_id INT NOT NULL,
 	date_purchased_month VARCHAR(255) NOT NULL,
 	date_purchased_day INT NOT NULL,
 	date_purchased_year INT NOT NULL,
-	total_cost FLOAT UNSIGNED NOT NULL,
-	-- FOREIGN KEY(schedule_id)
-	-- REFERENCES TRIP_SCHEDULE(schedule_id)
-	-- ON DELETE RESTRICT,
 	FOREIGN KEY(customer_id)
 	REFERENCES CUSTOMER(customer_id)
 	ON DELETE RESTRICT
 );
-
-
 
 CREATE TABLE TOWN(
 	town_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
@@ -99,31 +104,10 @@ CREATE TABLE TOWN(
 CREATE TABLE STATION(
 	station_id INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
 	name VARCHAR(255) NOT NULL,
-	town_id INT NOT NULL ,
+	town_id INT NOT NULL,
 	FOREIGN KEY(town_id)
 	REFERENCES TOWN(town_id)
 );
-
-CREATE TABLE INTERTOWN_ROUTE(
-	it_route_id INT NOT NULL UNIQUE PRIMARY KEY,
-	origin_town_id INT NOT NULL ,
-	destination_town_id INT NOT NULL,
-	FOREIGN KEY(origin_town_id)
-	REFERENCES TOWN(town_id),
-	FOREIGN KEY(destination_town_id)
-	REFERENCES TOWN(town_id)
-);
-
-CREATE TABLE LOCAL_ROUTE(
-	lr_route_id INT NOT NULL UNIQUE PRIMARY KEY,
-	origin_station_id INT NOT NULL ,
-	destination_station_id INT NOT NULL ,
-	FOREIGN KEY(origin_station_id)
-	REFERENCES STATION(station_id),
-	FOREIGN KEY(destination_station_id)
-	REFERENCES STATION(station_id)
-);
-
 CREATE TABLE TASK(
 	task_code INT NOT NULL UNIQUE PRIMARY KEY,
 	description VARCHAR(255)
@@ -133,14 +117,22 @@ CREATE TABLE TRIP_ASSIGNMENT(
 	ticket_number INT NOT NULL,
 	schedule_id INT NOT NULL,
 	PRIMARY KEY(ticket_number,schedule_id),
-    FOREIGN KEY(ticket_number) REFERENCES TICKET(ticket_number),
-    FOREIGN KEY(schedule_id) REFERENCES TRIP_SCHEDULE(schedule_id)
+    FOREIGN KEY(ticket_number)
+    REFERENCES TICKET(ticket_number)
+    ON DELETE RESTRICT,
+    FOREIGN KEY(schedule_id)
+    REFERENCES TRIP_SCHEDULE(schedule_id)
+    ON DELETE RESTRICT
 );
 
 CREATE TABLE TASK_DOING(
 	maintenance_id INT NOT NULL,
 	task_code INT NOT NULL,
 	PRIMARY KEY(maintenance_id,task_code),
-    FOREIGN KEY(maintenance_id) REFERENCES MAINTENANCE_HISTORY(maintenance_id),
-    FOREIGN KEY(task_code) REFERENCES task(task_code)
+    FOREIGN KEY(maintenance_id)
+    REFERENCES MAINTENANCE_HISTORY(maintenance_id)
+    ON DELETE RESTRICT,
+    FOREIGN KEY(task_code)
+    REFERENCES task(task_code)
+    ON DELETE RESTRICT
 );
