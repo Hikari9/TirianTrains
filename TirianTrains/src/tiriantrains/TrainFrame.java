@@ -54,38 +54,8 @@ public class TrainFrame extends DefaultFrame {
     
     // filter contents of table then sort
     public void filter() {
-        RowFilter<GenericTableModel, Integer> rowFilter, dateFilter, timeFilter, dateTimeFilter, afterDateFilter;
-        
-        /// show only on specific date provided
-        dateFilter = RowFilter.dateFilter(RowFilter.ComparisonType.EQUAL, BuyTicket.getDepartureDate(), 0);
-        timeFilter = RowFilter.numberFilter(RowFilter.ComparisonType.BEFORE, BuyTicket.getDepartureTime(), 1);
-        timeFilter = RowFilter.notFilter(timeFilter);
-        
-        // join as an AND clause
-        ArrayList<RowFilter<GenericTableModel, Integer>> and = new ArrayList<>();
-        and.add(dateFilter);
-        and.add(timeFilter);
-        dateTimeFilter = RowFilter.andFilter(and);
-        
-        // show also on dates beyond provided
-        afterDateFilter = RowFilter.dateFilter(RowFilter.ComparisonType.AFTER, BuyTicket.getDepartureDate(), 0);
-        
-        // join two filters as an or clause
-        // ie. rowFilter = (dateFilter & timeFilter) | afterDateFilter
-        ArrayList<RowFilter<GenericTableModel, Integer>> or = new ArrayList<>();
-        or.add(dateTimeFilter);
-        or.add(afterDateFilter);
-        rowFilter = RowFilter.orFilter(or);
-        
-        if (sorter != null) {
-            table.setRowSorter(sorter);
-            final ArrayList<SortKey> sortKeys = new ArrayList<>();
-            sortKeys.add(new SortKey(0, SortOrder.ASCENDING)); // Date
-            sortKeys.add(new SortKey(1, SortOrder.ASCENDING)); // Departure Time
-            sortKeys.add(new SortKey(2, SortOrder.ASCENDING)); // Arrival Time
-            sorter.setSortKeys(sortKeys);
-            sorter.setRowFilter(rowFilter);
-        }
+        Object[][] data = TirianTrains.getTrainTable();
+        ((GenericTableModel) table.getModel()).setData(TirianTrains.getTrainTable());
     }
     
     private JComponent createTable() {
@@ -96,10 +66,7 @@ public class TrainFrame extends DefaultFrame {
         // table model        
         GenericTableModel model = new GenericTableModel(data, headers);
         table = new JTable(model);
-        
-        // setup sorter
-        sorter = new TableRowSorter<>(model);
-        
+                
         // setup scrollable table
         JScrollPane scroll = new JScrollPane(table);
         return scroll;
@@ -111,6 +78,9 @@ public class TrainFrame extends DefaultFrame {
         public GenericTableModel(Object[][] data, Object[] headers) {
             this.data = data;
             this.headers = headers;
+        }
+        public void setData(Object[][] data) {
+            this.data = data;
         }
         @Override
         public String getColumnName(int col) {
@@ -124,6 +94,7 @@ public class TrainFrame extends DefaultFrame {
         }
         @Override
         public int getRowCount() {
+            if (data == null) return 0;
             return data.length;
         }
         @Override

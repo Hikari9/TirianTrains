@@ -68,21 +68,22 @@ CREATE TABLE TRIP_SCHEDULE(
 	arrival_hour INT NOT NULL,
 	arrival_minute INT NOT NULL,
 	route_id INT NOT NULL,
-	FOREIGN KEY(route_id)
-	REFERENCES ROUTE(route_id)
+    train_id INT NOT NULL,
+	FOREIGN KEY(route_id) REFERENCES ROUTE(route_id) ON DELETE RESTRICT,
+    FOREIGN KEY(train_id) REFERENCES TRAIN(train_id) ON DELETE RESTRICT
 );
 
 CREATE TABLE TICKET(
 	ticket_number INT NOT NULL UNIQUE PRIMARY KEY DEFAULT 0,
-	schedule_id INT NOT NULL,
+	-- schedule_id INT NOT NULL,
 	customer_id INT NOT NULL,
 	date_purchased_month VARCHAR(255) NOT NULL,
 	date_purchased_day INT NOT NULL,
 	date_purchased_year INT NOT NULL,
 	total_cost FLOAT UNSIGNED NOT NULL,
-	FOREIGN KEY(schedule_id)
-	REFERENCES TRIP_SCHEDULE(schedule_id)
-	ON DELETE RESTRICT,
+	-- FOREIGN KEY(schedule_id)
+	-- REFERENCES TRIP_SCHEDULE(schedule_id)
+	-- ON DELETE RESTRICT,
 	FOREIGN KEY(customer_id)
 	REFERENCES CUSTOMER(customer_id)
 	ON DELETE RESTRICT
@@ -123,8 +124,6 @@ CREATE TABLE LOCAL_ROUTE(
 	REFERENCES STATION(station_id)
 );
 
-
-
 CREATE TABLE TASK(
 	task_code INT NOT NULL UNIQUE PRIMARY KEY,
 	description VARCHAR(255)
@@ -133,11 +132,15 @@ CREATE TABLE TASK(
 CREATE TABLE TRIP_ASSIGNMENT(
 	ticket_number INT NOT NULL,
 	schedule_id INT NOT NULL,
-	PRIMARY KEY(ticket_number,schedule_id)
+	PRIMARY KEY(ticket_number,schedule_id),
+    FOREIGN KEY(ticket_number) REFERENCES TICKET(ticket_number),
+    FOREIGN KEY(schedule_id) REFERENCES TRIP_SCHEDULE(schedule_id)
 );
 
 CREATE TABLE TASK_DOING(
 	maintenance_id INT NOT NULL,
 	task_code INT NOT NULL,
-	PRIMARY KEY(maintenance_id,task_code)
+	PRIMARY KEY(maintenance_id,task_code),
+    FOREIGN KEY(maintenance_id) REFERENCES MAINTENANCE_HISTORY(maintenance_id),
+    FOREIGN KEY(task_code) REFERENCES task(task_code)
 );

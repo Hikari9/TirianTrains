@@ -120,16 +120,17 @@ public class DefaultFrame extends JFrame {
         // create an actionlistener on submit
         // invoke later in case of reference of script to self
         // (which will not work because script is still constructing the object)
+        
         SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
+             @Override
+             public void run() {
                submitButton.addActionListener(new ActionListener() {
                   @Override
                    public void actionPerformed(ActionEvent e) {
                       onSubmit(); // just override the method
                   } 
                });
-           } 
+            } 
         });
     }
     

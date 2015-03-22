@@ -2,12 +2,22 @@ package tiriantrains;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
+import java.sql.Date;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
-import org.jdatepicker.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import net.sourceforge.jdatepicker.JDatePicker;
+import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
+import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
+import net.sourceforge.jdatepicker.impl.SqlDateModel;
 
 public class TirianTrains {
   
@@ -19,7 +29,7 @@ public class TirianTrains {
         
         Object[][] data = null;
         
-        try { data = Database.selectQuery("SELECT DISTINCT name FROM town"); }
+        try { data = Database.selectQuery("SELECT DISTINCT name FROM town ORDER BY name ASC"); }
         catch (SQLException ex) {
             System.err.println("An exception occured: " + ex);
             return null;
@@ -39,7 +49,8 @@ public class TirianTrains {
             data = Database.selectQuery(
                 "SELECT town.name FROM station " +
                 "INNER JOIN town ON station.town_id = town.town_id " +
-                "WHERE station.name LIKE '" + station + "'"
+                "WHERE station.name LIKE '" + station + "' " +
+                "ORDER BY 1 ASC"
             );
         }
         catch (SQLException ex) {
@@ -54,7 +65,7 @@ public class TirianTrains {
         // receive all station info from database here
         Object[][] data;
         
-        try { data = Database.selectQuery("SELECT DISTINCT name FROM station"); }
+        try { data = Database.selectQuery("SELECT DISTINCT name FROM station ORDER BY name ASC"); }
         catch (SQLException ex) {
             System.err.println("An exception occured: " + ex);
             return null;
@@ -74,7 +85,8 @@ public class TirianTrains {
             data = Database.selectQuery(
                 "SELECT DISTINCT station.name FROM town " +
                 "INNER JOIN station ON station.town_id = town.town_id " +
-                "WHERE town.name LIKE '" + town + "'"
+                "WHERE town.name LIKE '" + town + "' " +
+                "ORDER BY 1 ASC"
             );
         }
         catch (SQLException ex) {
@@ -91,35 +103,53 @@ public class TirianTrains {
     
     public static Object[] getTrainTableHeaders() {
         // column headers of train list
-        return new Object[] {"Date", "Departure Time", "Arrival Time", "Duration", "Cost", "Train ID", "Train Model" };
+        return new Object[] {"Date", "Departure Time", "Arrival Time", "Duration (mins)", "Cost", "Train ID", "Train Model" };
     }
     
     public static Object[][] getTrainTable() {
-        // column info (unfiltered) of train list
+        // column info (filtered) of train list
         Object[][] data;
         
-        try {            
+        try {
             data = Database.selectQuery(
-                "SELECT " +
-                // Date
-                "CAST(CONCAT(trip.year, '-', trip.month, '-', trip.day) AS DATE) 'Date', " +
-                // Departure Time // times 100 for viewing purposes
-                "(trip.departure_hour * 100 + trip.departure_minute) 'Departure Time', " +
-                // Arrival Time
-                "(trip.arrival_hour * 100 + trip.arrival_minute) 'Arrival Time', " +
-                // Cost
-                "SUM(route.travel_cost) 'Cost', " +
-                // Train ID and model
-                "train.train_id 'Train ID', model.name 'Train Mode' " +
-                // Train features
-                // ", (model.max_speed, model.no_of_seats, model.no_of_toilets, model.reclining_seats, model.foldable_table, model.disability_access, model.luggage_storage, model.vending_machines, model.food_service) " +
-                "FROM trip_assignment assignment " + 
-                "INNER JOIN trip_schedule trip ON assignment.schedule_id = trip.schedule_id " +
-                "INNER JOIN ticket ON assignment.ticket_number = ticket.ticket_number " +
-                "INNER JOIN route ON trip.route_id = route.route_id " +
-                "INNER JOIN train ON train.train_id = trip.train_id " +
-                "INNER JOIN train_model model ON model.train_model_code = train.train_model_code "
-            );   
+                        "SELECT " +
+                        // Date
+                        "CAST(CONCAT(trip.year, '-', trip.month, '-', trip.day) AS DATE) 'Date', " +
+                        // Departure Time // times 100 for viewing purposes
+                        "(trip.departure_hour * 100 + trip.departure_minute) 'Departure Time', " +
+                        // Arrival Time
+                        "(trip.arrival_hour * 100 + trip.arrival_minute) 'Arrival Time', " +
+                        // Duration
+                        "(trip.arrival_hour * 60 + trip.arrival_minute) - (trip.departure_hour * 60 - trip.departure_minute) 'Duration', " +
+                        // Cost
+                        "SUM(route.travel_cost) 'Cost', " +
+                        // Train ID and model
+                        "train.train_id 'Train ID', model.name 'Train Model' " +
+                        // Train features
+                        // ", (model.max_speed, model.no_of_seats, model.no_of_toilets, model.reclining_seats, model.foldable_table, model.disability_access, model.luggage_storage, model.vending_machines, model.food_service) " +
+                        "FROM trip_assignment assignment " + 
+                        "INNER JOIN trip_schedule trip ON assignment.schedule_id = trip.schedule_id " +
+                        "INNER JOIN ticket ON assignment.ticket_number = ticket.ticket_number " +
+                        "INNER JOIN route ON trip.route_id = route.route_id " +
+                        "INNER JOIN local_route local ON route.route_id = local.lr_route_id " +
+                        "INNER JOIN station origin ON origin.station_id = local.origin_station_id " +
+                        "INNER JOIN station destination ON destination.station_id = local.destination_station_id " +
+                        "INNER JOIN town origin_town ON origin_town.town_id = origin.town_id " +
+                        "INNER JOIN town dest_town ON dest_town.town_id = destination.town_id " +
+                        "INNER JOIN train ON train.train_id = trip.train_id " +
+                        "INNER JOIN train_model model ON model.train_model_code = train.train_model_code " +
+                        // start of filter
+                        "WHERE (CAST(CONCAT(trip.year, '-', trip.month, '-', trip.day) AS DATE) > CAST('" + BuyTicket.getDepartureDate().toString() + "' AS DATE) " +
+                        "OR (" +
+                            "CAST(CONCAT(trip.year, '-', trip.month, '-', trip.day) AS DATE) = CAST('" + BuyTicket.getDepartureDate().toString() + "' AS DATE) " +
+                            "AND (trip.departure_hour * 100 + trip.departure_minute) >= " + BuyTicket.getDepartureTime() +
+                        "))" +
+                        "AND origin.name = '" + BuyTicket.getFromStation().getName() + "' " +
+                        "AND destination.name = '" + BuyTicket.getToStation().getName() + "' " +
+                        "AND origin_town.name = '" + BuyTicket.getFromStation().getTownName() + "' " +
+                        "AND dest_town.name = '" + BuyTicket.getToStation().getTownName() + "' " + 
+                        "ORDER BY 1 ASC, 2 ASC, 3 ASC"
+            );
         }
         catch (SQLException ex) {
             System.err.println("An exception occured: " + ex);
@@ -173,9 +203,13 @@ public class TirianTrains {
         }
     }
     
-    static JDateComponentFactory dateFactory = new JDateComponentFactory();
     public static JDatePicker createJDatePicker() {
-        return dateFactory.createJDatePicker();
+        SqlDateModel model = new SqlDateModel();
+        JDatePanelImpl panel = new JDatePanelImpl(model);
+        JDatePickerImpl picker = new JDatePickerImpl(panel);
+        
+        model.setValue(new SimpleDate());
+        return picker;
     }
     
 }

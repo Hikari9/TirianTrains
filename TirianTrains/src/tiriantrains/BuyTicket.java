@@ -2,14 +2,20 @@ package tiriantrains;
 
 import java.awt.Component;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.ParseException;
 import java.sql.Date;
 import javax.swing.JComboBox;
+import javax.swing.JComponent;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.text.MaskFormatter;
-import org.jdatepicker.JDatePicker;
+import net.sourceforge.jdatepicker.JDatePanel;
+import net.sourceforge.jdatepicker.JDatePicker;
+import net.sourceforge.jdatepicker.impl.JDatePanelImpl;
+import net.sourceforge.jdatepicker.impl.JDatePickerImpl;
 
 // Note: this class is a Singleton
 public class BuyTicket extends DefaultFrame {
@@ -36,10 +42,7 @@ public class BuyTicket extends DefaultFrame {
     }
     
     public static Date getDepartureDate() {
-        int day = getInstance().departureDate.getModel().getDay();
-        int month = getInstance().departureDate.getModel().getMonth();
-        int year = getInstance().departureDate.getModel().getYear();
-        return new SimpleDate(year, month, day);
+        return (Date) getInstance().departureDate.getModel().getValue();
     }
     
     // military time
@@ -50,18 +53,21 @@ public class BuyTicket extends DefaultFrame {
         // * 100 for viewing purposes
         return hours * 100 + minutes;
     }
-    
-    // Constructor
-    private BuyTicket() {
-        super("Buy Tickets", "PICK TRAINS -->", 30);
-    }
 
     // static method to ensure one instance
     private static BuyTicket instance = null;
     public static BuyTicket getInstance() {
-        if (instance == null)
-            instance = new BuyTicket();
         return instance;
+    }
+    
+    static {
+        new BuyTicket();
+    }
+    
+    // Constructor
+    private BuyTicket() {
+        super("Buy Tickets", "PICK TRAINS -->", 30);
+        instance = this;
     }
     
     // initialize components

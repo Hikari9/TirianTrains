@@ -40,6 +40,19 @@ public class Database {
             rows.add(row);
         }
         
+        if (rows.size() == 1) {
+            // check every element if null
+            boolean allNull = true;
+            for (Object o : rows.get(0)) {
+                if (o != null) {
+                    allNull = false;
+                    break;
+                }
+            }
+            if (allNull)
+                return new Object[0][columns];
+        }
+        
         Object[][] data = new Object[rows.size()][];
         for (int i = 0; i < rows.size(); ++i)
             data[i] = rows.get(i);
