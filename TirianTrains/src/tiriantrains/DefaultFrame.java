@@ -109,9 +109,11 @@ public class DefaultFrame extends JFrame {
         }
     }
     
+    protected JButton submitButton;
+    
     // create's the button for submission
     private void createSubmit() {
-        final JButton submitButton = new JButton(submit);
+        submitButton = new JButton(submit);
         
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         panel.add(submitButton);

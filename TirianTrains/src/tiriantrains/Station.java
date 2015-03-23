@@ -9,6 +9,8 @@ public class Station {
     // Accessors
     public String getName() { return name; }
     public String getTownName() { return TirianTrains.getTown(getName()); }
+    @Override
+    public String toString() { return getName() + " (" + getTownName() + ")"; }
     
     // Constructor
     public Station(String name) { this.name = name; }

@@ -6,93 +6,104 @@
 
 package tiriantrains;
 
+// Singleton class
+
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import static javax.swing.JFrame.EXIT_ON_CLOSE;
+import javax.swing.BoxLayout;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-import javax.swing.border.Border;
-import net.sourceforge.jdatepicker.JDatePicker;
 
-/**
- *
- * @author PC2
- */
-public class ConfirmFrame extends JFrame {
+public class ConfirmFrame extends DefaultFrame {
     
-    private static ConfirmFrame instance = new ConfirmFrame();
+    // static methods
+    private static ConfirmFrame instance = null;
+    static {
+        new ConfirmFrame();
+    }
     public static ConfirmFrame getInstance() { return instance; }
     
-    public final JDatePicker date;
-    public final JLabel origin, desitination;
-    public final JLabel departureTime, arrivalTime;
-    public final JLabel train;
+    // private constructor
+    private ConfirmFrame() { super("Confirm Trip Schedule", "Confirm", 30); instance = this; }
     
-    private Font h1 = new Font("Serif", Font.BOLD, 30);
-    private Font h3 = new Font("Serif", Font.BOLD, 20);
-    private Border slender = BorderFactory.createEmptyBorder(10, 0, 10, 0);
-    private Border largeTop = BorderFactory.createEmptyBorder(30, 0, 10, 0);
-   
+    // initializer here
+    @Override
+    protected void start() {
+        add(createInfo());
+    }
     
-    private JLabel header = new JLabel("Confirm Trip Schedule") {{ this.setFont(h1); }};
-    private JButton next = new JButton("Confirm -->") {{
-        this.setFont(h3);
-        // EDIT THIS
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                // JFrame nextFrame = TicketFrame.getInstance();
-                // addActionListener(new TirianTrains.FrameOpener(getInstance(), nextFrame));
+    JComponent createInfo() {
+        JPanel bigPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+        
+        panel.add(new JLabel() {
+            @Override
+            public String getText() {
+                try {
+                    return "Date:   " + TrainFrame.getDate();
+                }
+                catch (Exception ex) {
+                    return "";
+                }
             }
         });
-    }};
-    
-    
-    final JPanel[] panels = new JPanel[] {
-        new JPanel(new FlowLayout(FlowLayout.LEFT)) {{ add(header); }},
-        // date
-        new JPanel(new FlowLayout(FlowLayout.LEFT)) {{setBorder(slender);}},
-        // origin
-        new JPanel(new FlowLayout(FlowLayout.LEFT)) {{setBorder(slender);}},
-        // destination
-        new JPanel(new FlowLayout(FlowLayout.LEFT)) {{setBorder(slender);}},
-        // departure/arrival time
-        new JPanel(new FlowLayout(FlowLayout.LEFT)) {{setBorder(slender);}},
-        // train
-        new JPanel(new FlowLayout(FlowLayout.LEFT)) {{setBorder(slender);}},
-        // price
-        new JPanel(new FlowLayout(FlowLayout.LEFT)) {{setBorder(largeTop);}},
-        new JPanel(new FlowLayout(FlowLayout.RIGHT)) {{ add(next); }}
-    };
-    
-    private ConfirmFrame() {
-        super ("Confirm Trip Schedule");
         
-        date = TirianTrains.createJDatePicker();
+        panel.add(new JLabel() {
+            @Override
+            public String getText() {
+                try {
+                    Station from = BuyTicket.getFromStation();
+                    Station to = BuyTicket.getToStation();
+                    return "Origin/Destination:   " + from.toString() + "   TO   " + to.toString();
+                }
+                catch (Exception ex) {
+                    return "";
+                }
+            }
+        });
         
-        origin = TirianTrains.getOriginStation();
-        desitination = TirianTrains.getDestinationStation();
-        departureTime = TirianTrains.getDepartureTime();
-        arrivalTime = TirianTrains.getArrivalTime();
-        train = TirianTrains.getTrain();
+        panel.add(new JLabel() {
+            @Override
+            public String getText() {
+                try {
+                    String dep = TrainFrame.getDepartureTime();
+                    String arr = TrainFrame.getArrivalTime();
+                    return "Departure Time/Arrival Time:   " + dep + "   TO   " + arr;
+                }
+                catch (Exception ex) {
+                    System.err.println("Error at dep/arr time: " + ex);
+                    return "";
+                }
+            }
+        });
         
+        panel.add(new JLabel() {
+            @Override
+            public String getText() {
+                try {
+                    return "Cost:   " + TrainFrame.getTotalCost();
+                }
+                catch (Exception ex) {
+                    System.err.println("Error at train: " + ex);
+                    return "";
+                }
+            }
+        });
         
-        // add padding to frame
-        int pad = 50;
-        Border padding = BorderFactory.createEmptyBorder(pad, pad, pad, pad);
-        JPanel content = new JPanel(new GridLayout(panels.length, 1));
-        content.setBorder(padding);
-        setContentPane(content);
+        for (Component comp : panel.getComponents()) {
+            if (comp instanceof JLabel) {
+                JLabel label = (JLabel) comp;
+                label.setFont(label.getFont().deriveFont(Font.PLAIN));
+            }
+        }
         
-        // finally add all panels
-        for (JPanel panel : panels)
-            add(panel);
+        bigPanel.add(panel);
         
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
-        pack();
+        return bigPanel;
     }
+    
 }

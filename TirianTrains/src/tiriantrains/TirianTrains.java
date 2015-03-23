@@ -116,7 +116,7 @@ public class TirianTrains {
                 // Train ID and model
                 "train.train_id 'Train ID', model.name 'Train Model' " +
                 // Train features
-                // ", (model.max_speed, model.no_of_seats, model.no_of_toilets, model.reclining_seats, model.foldable_table, model.disability_access, model.luggage_storage, model.vending_machines, model.food_service) " +
+                ", model.max_speed, model.no_of_seats, model.no_of_toilets, model.reclining_seats, model.foldable_table, model.disability_access, model.luggage_storage, model.vending_machines, model.food_service " +
                 "FROM trip_schedule trip " +                        
                         
                 "INNER JOIN route ON trip.route_id = route.route_id " +
