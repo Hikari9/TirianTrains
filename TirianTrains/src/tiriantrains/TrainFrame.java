@@ -86,7 +86,7 @@ public class TrainFrame extends DefaultFrame {
         }
         @Override
         public Class getColumnClass(int col) {
-             if (col >= 0 && col < getColumnCount() && getRowCount() > 0)
+             if (col >= 0 && col < getColumnCount() && getRowCount() > 0 && getValueAt(0, col) != null)
                 return getValueAt(0, col).getClass();
             return Object.class;
         }
@@ -97,10 +97,15 @@ public class TrainFrame extends DefaultFrame {
         }
         @Override
         public int getColumnCount() {
-            return headers.length;
+            if (data == null || data.length == 0)
+                return headers.length;
+            else
+                return data[0].length;
         }
         @Override
         public Object getValueAt(int row, int col) {
+            if (row < 0 || row >= getRowCount() || col < 0 || col >= getColumnCount())
+                return "";
             return data[row][col];
         }
         @Override
@@ -108,8 +113,6 @@ public class TrainFrame extends DefaultFrame {
             return false;
         }
     }
-    
-    
     
     
 }

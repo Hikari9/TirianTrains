@@ -117,9 +117,8 @@ public class TirianTrains {
                 "train.train_id 'Train ID', model.name 'Train Model' " +
                 // Train features
                 // ", (model.max_speed, model.no_of_seats, model.no_of_toilets, model.reclining_seats, model.foldable_table, model.disability_access, model.luggage_storage, model.vending_machines, model.food_service) " +
-                "FROM trip_assignment assignment " + 
-                "INNER JOIN trip_schedule trip ON assignment.schedule_id = trip.schedule_id " +
-                "INNER JOIN ticket ON assignment.ticket_number = ticket.ticket_number " +
+                "FROM trip_schedule trip " +                        
+                        
                 "INNER JOIN route ON trip.route_id = route.route_id " +
                 "INNER JOIN station origin ON origin.station_id = route.origin_station_id " +
                 "INNER JOIN station destination ON destination.station_id = route.destination_station_id " +
@@ -128,15 +127,17 @@ public class TirianTrains {
                 "INNER JOIN train ON train.train_id = trip.train_id " +
                 "INNER JOIN train_model model ON model.train_model_code = train.train_model_code " +
                 // start of filter
+                        
                 "WHERE (CAST(CONCAT(trip.year, '-', trip.month, '-', trip.day) AS DATE) > CAST('" + BuyTicket.getDepartureDate().toString() + "' AS DATE) " +
                 "OR (" +
                     "CAST(CONCAT(trip.year, '-', trip.month, '-', trip.day) AS DATE) = CAST('" + BuyTicket.getDepartureDate().toString() + "' AS DATE) " +
                     "AND (trip.departure_hour * 100 + trip.departure_minute) >= " + BuyTicket.getDepartureTime() +
-                "))" +
+                "))" + 
                 "AND origin.name = '" + BuyTicket.getFromStation().getName() + "' " +
                 "AND destination.name = '" + BuyTicket.getToStation().getName() + "' " +
                 "AND origin_town.name = '" + BuyTicket.getFromStation().getTownName() + "' " +
                 "AND dest_town.name = '" + BuyTicket.getToStation().getTownName() + "' " + 
+                "GROUP BY trip.schedule_id " + 
                 "ORDER BY 1 ASC, 2 ASC, 3 ASC"
             );
         }
